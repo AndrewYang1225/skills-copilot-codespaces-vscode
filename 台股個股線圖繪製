@@ -1,23 +1,46 @@
+import twstock
 import pandas as pd
-import matplotlib
 import mplfinance as mpf
-# 導入pandas、matplotlib、mplfinance模組，將mplfinance模組縮寫為mpf
-# 這邊要導入matplotlib的原因是因為mplfinance繪圖時需要調用mptplotlib模組
+import os
 
-target_stock = '0050' #設定要繪製走勢圖的股票
+# 設定股票與日期
+stock_code = '00620'  # 台灣高股息ETF
+start_year = 2016
+start_month = 8
 
-df = pd.read_csv(f'./data/{target_stock}.csv', parse_dates=True, index_col=1) #讀取目標股票csv檔的位置
+# 確保 data 目錄存在
+os.makedirs('./data', exist_ok=True)
 
-df.rename(columns={'Turnover':'Volume'}, inplace = True) 
-#這裡針對資料表做一下修正，因為交易量(Turnover)在mplfinance中須被改為Volume才能被認出來
+# 抓取股票資料
+stock = twstock.Stock(stock_code)
+data = stock.fetch_from(start_year, start_month)
 
-mc = mpf.make_marketcolors(up='r',down='g',inherit=True)
-s  = mpf.make_mpf_style(base_mpf_style='yahoo',marketcolors=mc)
-#針對線圖的外觀微調，將上漲設定為紅色，下跌設定為綠色，符合台股表示習慣
-#接著把自訂的marketcolors放到自訂的style中，而這個改動是基於預設的yahoo外觀
+# 定義欄位
+columns = ['Date', 'Capacity', 'Turnover', 'Open', 'High', 'Low', 'Close', 'Change', 'Transaction']
 
-kwargs = dict(type='candle', mav=(5,20,60), volume=True, figratio=(10,8), figscale=0.75, title=target_stock, style=s) 
-#設定可變參數kwargs，並在變數中填上繪圖時會用到的設定值
+# 轉換為 DataFrame 並儲存為 CSV
+df = pd.DataFrame(data, columns=columns)
+csv_file = f'./data/{stock_code}.csv'
+df.to_csv(csv_file, index=False)
 
-mpf.plot(df, **kwargs)
-#選擇df資料表為資料來源，帶入kwargs參數，畫出目標股票的走勢圖
+# 讀取 CSV 並準備繪圖
+df_plot = pd.read_csv(csv_file, parse_dates=['Date'], index_col='Date')
+df_plot.rename(columns={'Turnover': 'Volume'}, inplace=True)
+
+# 設定台股風格：上漲紅色，下跌綠色
+mc = mpf.make_marketcolors(up='r', down='g', inherit=True)
+s = mpf.make_mpf_style(base_mpf_style='yahoo', marketcolors=mc)
+
+# 設定繪圖參數
+kwargs = dict(
+    type='candle',
+    mav=(5, 20, 60),
+    volume=True,
+    figratio=(10, 8),
+    figscale=0.75,
+    title=stock_code,
+    style=s
+)
+
+# 繪製 K 線圖
+mpf.plot(df_plot, **kwargs)
