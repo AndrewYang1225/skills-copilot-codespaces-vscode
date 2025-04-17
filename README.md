@@ -14,7 +14,6 @@ python
 1. 匯入必要的庫
 python
 
-複製
 import yfinance as yf
 import mplfinance as mpf
 from datetime import datetime, timedelta
@@ -26,14 +25,12 @@ pandas：用於處理股票資料（yfinance 返回的資料是 pandas.DataFrame
 2. 定義主函數 plot_stock_k_chart
 python
 
-複製
 def plot_stock_k_chart(stock_code):
 這是一個封裝函數，接受股票代碼作為參數，負責下載資料並繪製 K 棒圖。
 使用函數封裝使程式碼模組化，方便重複使用或修改。
 3. 設定日期範圍
 python
 
-複製
 end_date = datetime.today()
 start_date = end_date - timedelta(days=180)
 end_date：當前日期，作為資料的下載終點。
@@ -42,7 +39,6 @@ start_date：從當前日期減去 180 天（約 6 個月），作為資料的�
 4. 下載股票資料
 python
 
-複製
 stock = yf.Ticker(stock_code)
 df = stock.history(start=start_date, end=end_date)
 yf.Ticker(stock_code)：創建一個股票物件，代表指定的股票（例如 2330.TW）。
@@ -51,7 +47,6 @@ stock.history：下載指定時間範圍的歷史資料，返回一個 pandas.Da
 5. 檢查資料有效性
 python
 
-複製
 if df.empty:
     print(f"錯誤：無法取得 {stock_code} 的資料，請檢查股票代碼是否正確。")
     return
@@ -66,14 +61,12 @@ if not all(col in df.columns for col in required_columns):
 6. 格式化日期索引
 python
 
-複製
 df.index = pd.to_datetime(df.index)
 mplfinance 要求：K 棒圖的索引必須是 datetime 格式。
 yfinance 的索引：通常已經是 datetime，但這裡顯式轉換以確保相容性。
 7. 設定 K 棒圖樣式
 python
 
-複製
 mpf_style = mpf.make_mpf_style(base_mpf_style='yahoo', rc={'font.size': 12})
 mpf.make_mpf_style：自訂 K 棒圖的樣式，基於 Yahoo Finance 的預設風格。
 rc={'font.size': 12}：設定圖表的字體大小為 12。
@@ -81,7 +74,6 @@ rc={'font.size': 12}：設定圖表的字體大小為 12。
 8. 繪製 K 棒圖
 python
 
-複製
 mpf.plot(
     df,
     type='candle',  # K 棒圖類型
@@ -106,7 +98,6 @@ figsize=(12, 8)：設定圖表尺寸（寬 12 英寸，高 8 英寸）。
 9. 錯誤處理
 python
 
-複製
 except Exception as e:
     print(f"發生錯誤：{str(e)}")
 捕捉異常：處理可能的錯誤（例如網路問題、無效股票代碼）。
@@ -115,7 +106,6 @@ except Exception as e:
 10. 主程式
 python
 
-複製
 if __name__ == "__main__":
     stock_code = input("請輸入股票代碼（例如 2330.TW）：").strip()
     plot_stock_k_chart(stock_code)
@@ -128,7 +118,6 @@ input：提示使用者輸入股票代碼，.strip() 移除輸入中的多餘空
 
 bash
 
-複製
 pip install yfinance mplfinance pandas
 yfinance：用於下載股票資料。
 mplfinance：用於繪製 K 棒圖。
@@ -139,7 +128,6 @@ pandas：通常由 yfinance 和 mplfinance 自動安裝，用於資料處理。
 運行程式：
 bash
 
-複製
 python stock_k_chart.py
 輸入股票代碼（例如 2330.TW），程式會下載資料並顯示 K 棒圖。
 可能的修改建議
@@ -148,7 +136,6 @@ python stock_k_chart.py
 讓使用者輸入開始和結束日期：
 python
 
-複製
 start_date = input("請輸入開始日期（YYYY-MM-DD）：")
 end_date = input("請輸入結束日期（YYYY-MM-DD）：")
 df = stock.history(start=start_date, end=end_date)
@@ -156,7 +143,6 @@ df = stock.history(start=start_date, end=end_date)
 計算並顯示移動平均線（MA）：
 python
 
-複製
 df['MA20'] = df['Close'].rolling(window=20).mean()
 ap = mpf.make_addplot(df['MA20'], color='blue')
 mpf.plot(df, type='candle', addplot=ap, ...)
@@ -164,7 +150,6 @@ mpf.plot(df, type='candle', addplot=ap, ...)
 將 K 棒圖儲存為圖片：
 python
 
-複製
 mpf.plot(..., savefig='k_chart.png')
 支援多個股票：
 允許輸入多個股票代碼，繪製比較圖表。
