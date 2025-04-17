@@ -1,21 +1,56 @@
-import twstock
+mport twstock
 import pandas as pd
-# 導入twstock及pandas模組，pandas模組縮寫為pd
+import os
+import argparse
+from datetime import datetime
 
-target_stock = '00620'  #台股高股息ETF
-stock = twstock.Stock(target_stock)  #從tw stock調閱查詢目標股價
-target_price = stock.fetch_from(2016, 9)  #取用2016/09至今的每筆交易資料
+def fetch_stock_data(stock_code, start_year, start_month):
+    """
+    抓取指定股票的歷史交易資料並儲存為 CSV 檔案
+    """
+    try:
+        # 確保 data 目錄存在
+        os.makedirs('./data', exist_ok=True)
 
-name_attribute = [
-    'Date', 'Capacity', 'Turnover', 'Open', 'High', 'Low', 'Close', 'Change',
-    'Transcation'
-]  #將蒐集到的資料調閱新的贆投
+        # 初始化股票物件
+        stock = twstock.Stock(stock_code)
+        
+        # 抓取資料
+        target_price = stock.fetch_from(start_year, start_month)
+        
+        # 定義資料表欄位
+        name_attribute = [
+            'Date', 'Capacity', 'Turnover', 'Open', 'High', 'Low', 
+            'Close', 'Change', 'Transaction'
+        ]
+        
+        # 轉換為 DataFrame
+        df = pd.DataFrame(columns=name_attribute, data=target_price)
+        
+        # 定義輸出檔案路徑
+        filename = f'./data/{stock_code}.csv'
+        
+        # 儲存為 CSV
+        df.to_csv(filename, index=False)
+        print(f"成功儲存資料至 {filename}")
+        
+        return df
+    
+    except Exception as e:
+        print(f"抓取或處理資料時發生錯誤: {e}")
+        return None
 
-df = pd.DataFrame(columns=name_attribute, data=target_price)
-#將twstock抓到的清單轉成Data Frame格式的資料表
+def main():
+    # 設定命令列參數
+    parser = argparse.ArgumentParser(description="抓取台灣股票歷史資料並儲存為 CSV")
+    parser.add_argument('--stock', type=str, default='00620', help='股票代碼（預設：00620）')
+    parser.add_argument('--year', type=int, default=2016, help='開始年份（預設：2016）')
+    parser.add_argument('--month', type=int, default=9, help='開始月份（預設：9）')
+    
+    args = parser.parse_args()
+    
+    # 執行資料抓取
+    fetch_stock_data(args.stock, args.year, args.month)
 
-filename = f'./data/{target_stock}.csv'
-#指定Data Frame轉存csv檔案的檔名與路徑
-
-df.to_csv(filename)
-#將Data Frame轉存為csv檔案
+if __name__ == "__main__":
+    main()
