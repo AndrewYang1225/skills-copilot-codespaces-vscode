@@ -27,6 +27,7 @@ $ python -m pip install --user flit
 $ flit install
 CLI Tools
 $ twstock -b 2330 6223
+
 四大買賣點判斷 Best Four Point
 ------------------------------
 2330: Buy   量大收紅
@@ -101,8 +102,4 @@ import twstock
 twstock.realtime.get('2330')    # 擷取當前台積電股票資訊
 twstock.realtime.get(['2330', '2337', '2409'])  # 擷取當前三檔資訊
 使用範例
-tw-stocker
-Contributing
-twstock was created by Louie Lu <git@louie.lu>.
-
-Contributing were welcome, please use GitHub issue and Pull Request to contribute!
+YFinance
